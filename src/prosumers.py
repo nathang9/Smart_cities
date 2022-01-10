@@ -2,7 +2,7 @@ from scipy.optimize import minimize
 import numpy as np
 
 # main grid price
-MAIN_GRID = [np.inf,1,1,1]
+MAIN_GRID = [1,1,1,1]
 MAIN_GRID_SELL = MAIN_GRID
 MAIN_GRID_BUY = MAIN_GRID
 
@@ -24,7 +24,8 @@ def compute_operational_cost(x,  time,usage_cost,prod_cost):
     operational_cost = transaction_cost + battery_cost + prod_cost * power_prod
     return operational_cost
 
-def constraint(power_needed,  power_buy, power_sell, power_charge, power_discharge, power_prod):
+def constraint(x, power_needed = 100):
+    power_buy, power_sell, power_charge, power_discharge, power_prod = x
     return power_needed - power_buy + power_sell - power_charge + power_discharge - power_prod
 
 class prosumer:
@@ -37,7 +38,7 @@ class prosumer:
         self.balance = 0            # balance between consumption and production
         self.isProducer = False     # role
         self.isConsumer = False     # role
-        self.price = 0              # requested price for energy
+        self.delta = 0              # requested price for energy
 #        self.charge = 0             # battery current charge (in % ?)
 #        self.max_charge = 0         # battery max charge
 
@@ -69,7 +70,7 @@ class prosumer:
 
 
 
-
+    '''
     def requested_price(self, total_consumption, total_production, time, usage_cost, prod_cost):
         """
         compute and return the requested price to sell/buy
@@ -97,11 +98,11 @@ class prosumer:
             delta = max(ratio-0.5, 0)
 
         return delta
-
+    '''
 
     def compute_delta(self, total_consumption, total_production, param = 0):
         """
-        comute delta for bargaining power
+        comute delta for bargaining power and update delta of prosumer
 
         :param float total_consumption: The total consumption of all the prosumers
         :param float total_production: The total production of all the prosumers
@@ -110,16 +111,20 @@ class prosumer:
         """
         if self.isProducer:
             ratio = self.balance / total_production
-            delta = min(ratio + 0.5, 1) / param
+            delta_prod = min(ratio + 0.5, 1) / param
         elif self.isConsumer:
             ratio = self.balance / total_consumption
-            delta = max(ratio - 0.5, 0) * param
+            delta_prod = 1 - min(max(ratio - 0.5, 0) * param, 1)
 
-        return delta
+        self.delta = delta_prod
+
+        return delta_prod
+
 '''
+bnds = [(0,100), (0,100), (0,100), (0,100), (0,100)]
 con1 = {'type': 'ineq', 'fun': constraint}
 cons = [con1]
-sol = minimize(objective, x0, method='SLSQP', bounds = bnds, constraints = cons)
+#sol = minimize(objective, x0, method='SLSQP', bounds = bnds, constraints = cons)
 x0 = [0,0,0,0,0]
-print(minimize(compute_operational_cost, x0, args=(0,1,0.5)).x)
+print(minimize(compute_operational_cost, x0, args=(0,1,0.5), bounds = bnds, constraints = cons))
 '''
