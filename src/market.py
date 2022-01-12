@@ -1,5 +1,5 @@
-class market:
-    def __init__(self, liste_participants,delta_vendeur, heure,prix_achat_maingrid, prix_vente_maingrid, nombre_iteration):
+class Market:
+    def __init__(self, liste_participants, delta_vendeur, heure, prix_achat_maingrid, prix_vente_maingrid, nombre_iteration):
         self.liste_participants = liste_participants
         self.heure = heure
         self.nombre_iteration = nombre_iteration
