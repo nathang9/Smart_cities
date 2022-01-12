@@ -1,34 +1,7 @@
 from scipy.optimize import minimize
 import numpy as np
 
-# main grid price
-MAIN_GRID = [1,1,1,1]
-MAIN_GRID_SELL = MAIN_GRID
-MAIN_GRID_BUY = MAIN_GRID
-
-def compute_operational_cost(x,  time,usage_cost,prod_cost):
-    """
-    compute the operational cost for a single prosumers
-
-    :param x: variable that contains the detail of power variation [power_buy, power_sell, power_charge, power_discharge, power_prod]
-    :param int time: time of the transaction
-    :param float usage_cost: cost for using the battery
-    :param float prod_cost: cost for producing energy by the prosumers
-    :return: operational cost
-    """
-
-    power_buy, power_sell, power_charge, power_discharge, power_prod = x
-
-    transaction_cost = MAIN_GRID_BUY[time] * power_buy - MAIN_GRID_SELL[time] * power_sell
-    battery_cost = usage_cost * (power_charge + power_discharge)
-    operational_cost = transaction_cost + battery_cost + prod_cost * power_prod
-    return operational_cost
-
-def constraint(x, power_needed = 100):
-    power_buy, power_sell, power_charge, power_discharge, power_prod = x
-    return power_needed - power_buy + power_sell - power_charge + power_discharge - power_prod
-
-class prosumer:
+class Prosumer:
 
 
     def __init__(self, id=None):
@@ -111,20 +84,66 @@ class prosumer:
         """
         if self.isProducer:
             ratio = self.balance / total_production
-            delta_prod = min(ratio + 0.5, 1) / param
+            delta_prod = min(ratio + 0.5, 1) / (param+1)
         elif self.isConsumer:
-            ratio = self.balance / total_consumption
+            ratio = -self.balance / total_consumption
             delta_prod = 1 - min(max(ratio - 0.5, 0) * param, 1)
+        print("ratio", ratio)
+        self.delta = int(delta_prod*10)/10
+        print("delta", self.delta)
+        print("------------------------------------------")
+        return int(delta_prod*10)/10
 
-        self.delta = delta_prod
 
-        return delta_prod
+################################################################################"
+# main grid price 0,1558 €/kWh
+# été : [hc, hc, hc, hc, hc, hc, hc, hm, hm, hm, hm, hp, hp, hp, hp, hp, hp, hm, hm, hc, hc, hc, hc, hc]
+# hiver : [hc, hc, hc, hc, hc, hc, hc, hp, hp, hp, hp, hm, hm, hm, hm, hm, hm, hp, hp, hc, hc, hc, hc, hc]
+# week-end : [hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc]
+hc, hm, hp = 0.5 * 0.1558, 0.75 * 0.1558, 1.25 * 0.1558
+MAIN_GRID = [hc, hc, hc, hc, hc, hc, hc, hm, hm, hm, hm, hp, hp, hp, hp, hp, hp, hm, hm, hc, hc, hc, hc, hc]
+MAIN_GRID_SELL = [element * 0.9 for element in MAIN_GRID]
+MAIN_GRID_BUY = [element * 1.1 for element in MAIN_GRID]
+
+
+def compute_operational_cost(x,  time,usage_cost,prod_cost):
+    """
+    compute the operational cost for a single prosumers
+
+    :param x: variable that contains the detail of power variation [power_buy, power_sell, power_charge, power_discharge, power_prod]
+    :param int time: time of the transaction
+    :param float usage_cost: cost for using the battery
+    :param float prod_cost: cost for producing energy by the prosumers
+    :return: operational cost
+    """
+
+    power_buy, power_sell, power_charge, power_discharge, power_prod = x
+
+    transaction_cost = MAIN_GRID_BUY[time] * power_buy - MAIN_GRID_SELL[time] * power_sell
+    battery_cost = 0 #usage_cost * (power_charge + power_discharge)
+    operational_cost = transaction_cost + battery_cost + prod_cost * power_prod
+    return operational_cost
+
+def constraint(x, power_needed = 100):
+    power_buy, power_sell, power_charge, power_discharge, power_prod = x
+    return power_needed - power_buy + power_sell - power_charge + power_discharge - power_prod
+
+def constraint1(x):
+    power_buy, power_sell, power_charge, power_discharge, power_prod = x
+    return power_prod - power_sell
+
 
 '''
-bnds = [(0,100), (0,100), (0,100), (0,100), (0,100)]
-con1 = {'type': 'ineq', 'fun': constraint}
-cons = [con1]
+# bounds for buy, sell, charge, discharge, produce
+bnds = [(100,200), (0,50), (0,100), (0,100), (0,50)]
+con = {'type': 'ineq', 'fun': constraint}
+con1 = {'type': 'ineq', 'fun': constraint1}
+cons = [con, con1]
 #sol = minimize(objective, x0, method='SLSQP', bounds = bnds, constraints = cons)
 x0 = [0,0,0,0,0]
-print(minimize(compute_operational_cost, x0, args=(0,1,0.5), bounds = bnds, constraints = cons))
+for i in range(0,23):
+    print(i)
+    mini = minimize(compute_operational_cost, x0, args=(i,0.2,0.1), bounds = bnds, constraints = cons)
+    print(mini.fun)
+    print(mini.x)
 '''
