@@ -119,13 +119,16 @@ def create_df_correct(df):
 
 
 def regex_valeurs(p, s, c, val, i):
-    if re.match(r'\D*_pv\S*', i):
+    if re.match(r'[^ \t\n\r\f\v]*pv[^ \t\n\r\f\v]*', i):
         p = p + val
-    elif re.match(r'\D*_storage\D*', i) or re.match(r'\D*_ev', i):
+        print(i, " a de la production")
+    elif re.match(r'[^ \t\n\r\f\v]*_storage[^ \t\n\r\f\v]*', i) or re.match(r'[^ \t\n\r\f\v]*_ev', i):
         s = s + val
-    elif not re.match(r'\D*_export\D*', i):
+        print(i, " a du stockage")
+    elif not re.match(r'[^ \t\n\r\f\v]*_export[^ \t\n\r\f\v]*', i):
         c = c + val
-    return [p, s, c]
+        print(i, " a de la consommation")
+    return (p, s, c)
 
 
 def create_tab(df):
