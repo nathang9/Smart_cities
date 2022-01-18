@@ -93,3 +93,5 @@ class market:
             vendeur.besoin = 0
             vendeurs.remove(vendeur)
             hors_marche.append(vendeur)
+
+    def getListeGain(self):
