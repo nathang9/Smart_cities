@@ -7,7 +7,7 @@ import re
 
 
 def pretraitement(title):
-    pv_data_path = os.path.join("data/household_data/", title)
+    pv_data_path = os.path.join("../data/household_data/", title)
     df = pd.read_csv(pv_data_path, index_col=0, parse_dates=True, sep=';')
     df50 = dataframe_pourcent(df, 50)
     df60 = dataframe_pourcent(df, 60)
