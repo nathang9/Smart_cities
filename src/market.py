@@ -95,3 +95,4 @@ class market:
             hors_marche.append(vendeur)
 
     def getListeGain(self):
+        pass
