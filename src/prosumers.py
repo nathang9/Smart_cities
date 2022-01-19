@@ -64,13 +64,13 @@ def create(tab):
     for i in range(len(tab[0][1])):
         name = "prosumer" + str(i)
         pro = Prosumer(name)
-        pro.update(tab[0][1][1], tab[0][1][0])
+        pro.update(tab[0][1][i][1], tab[0][1][i][0])
         prosumers.append(pro)
     return prosumers
 
 def update_ALL(tab, iter, prosumers):
     for i in range(len(tab[iter][1])):
-        prosumers[i].update(tab[iter][1][1], tab[iter][1][0])
+        prosumers[i].update(tab[iter][1][i][1], tab[iter][1][i][0])
 
 #################################################################################
 # main grid price 0,1558 €/kWh # sell for 0,1873 €/kWh
@@ -106,7 +106,7 @@ def compute_operational_cost(x,  time,usage_cost,prod_cost,main_grid_buy,main_gr
         power_buy = 0
         power_sell = power_prod - power_buy
     elif power_prod > 0:
-        power_buy -= power_prod
+        power_buy = power_buy - power_prod
         power_sell = 0
 
     transaction_cost = main_grid_buy[time] * power_buy - main_grid_sell[time] * power_sell
@@ -139,14 +139,22 @@ def worst_case(power_buy=0, power_sell=0, power_charge=0, power_discharge=0, pow
     :return: an FLOAT price of consumption (can be positive if it costs money or negative if prosumer gains money)
     """
 
-    if power_sell == 0 and power_produce != 0:
-        power_sell = power_produce
+    #if power_sell == 0 and power_produce != 0:
+    #    power_sell = power_produce
+    MIN_BUY = power_buy
+    MAX_SELL = power_produce
+    if power_produce > power_buy:
+        MIN_BUY = 0
+        MAX_SELL = power_produce - power_buy
+    elif power_produce > 0:
+        MIN_BUY = power_buy - power_produce
+        MAX_SELL = 0
 
     # bounds for buy, sell, charge, discharge, produce
-    bnds = [(power_buy, power_buy*100), (power_sell, power_produce), (0, power_charge), (0, power_discharge), (0, power_produce)]
+    bnds = [(MIN_BUY, power_buy*100), (0, MAX_SELL), (0, power_charge), (0, power_discharge), (0, power_produce)]
     con = {'type': 'ineq', 'fun': constraint}
     con1 = {'type': 'ineq', 'fun': constraint1}
-    cons = [con, con1]
+    cons = [con1]
     x0 = [power_buy, 0, power_charge, power_discharge, power_produce]
     mini = minimize(compute_operational_cost, x0, args=(time, prices_power[0], prices_power[1], main_grid_buy, main_grid_sell), bounds = bnds, constraints = cons)
     return mini.fun, mini.x
