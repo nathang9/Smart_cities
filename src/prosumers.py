@@ -4,13 +4,17 @@ import numpy as np
 class Prosumer:
 
     def __init__(self, id=None):
+        """
+        Create a prosumer with attributs id=None, consume=0, produce=0, balance=0, isProducer=False, isConsumer=False
+
+        :param id: ID of the prosumer
+        """
         self.id = id                # identifier of each prosumer
         self.consume = 0            # how much is consumed
         self.produce = 0            # how much is produced
         self.balance = 0            # balance between consumption and production
         self.isProducer = False     # role
         self.isConsumer = False     # role
-        self.delta = 0              # requested price for energy
 #        self.charge = 0             # battery current charge (in % ?)
 #        self.max_charge = 0         # battery max charge
 
@@ -27,6 +31,10 @@ class Prosumer:
         self.compute_balance()
 
     def compute_balance(self):
+        """
+        Compute and update the role of a prosumer based on his balance
+        :return: None
+        """
         self.balance = self.produce - self.consume
         if self.balance > 0:
             self.isProducer = True
@@ -60,6 +68,12 @@ class Prosumer:
         return int(delta_prod*10)/10
 
 def create(tab):
+    """
+    Create a list of prosumers based on the table provided in pretraitement.py
+
+    :param tab: table provided by pretraitement.py
+    :return: a list of prosumers
+    """
     prosumers = []
     for i in range(len(tab[0][1])):
         name = "prosumer" + str(i)
@@ -69,6 +83,15 @@ def create(tab):
     return prosumers
 
 def update_ALL(tab, iter, prosumers):
+    """
+    Update the production and the consumption of a list of prosumers based on the table provided by pretraitement.py
+    Use the list provided by the function : 'create(tab)' defined in prosumers.py
+
+    :param tab: table provided by pretraitement.py
+    :param iter: line in the table to use
+    :param prosumers: list of prosumers to update
+    :return: None
+    """
     for i in range(len(tab[iter][1])):
         prosumers[i].update(tab[iter][1][i][1], tab[iter][1][i][0])
 
@@ -102,27 +125,30 @@ def compute_operational_cost(x,  time,usage_cost,prod_cost,main_grid_buy,main_gr
 
     power_buy, power_sell, power_charge, power_discharge, power_prod = x
 
-    if power_prod > power_buy:
-        power_buy = 0
-        power_sell = power_prod - power_buy
-    elif power_prod > 0:
-        power_buy = power_buy - power_prod
-        power_sell = 0
-
     transaction_cost = main_grid_buy[time] * power_buy - main_grid_sell[time] * power_sell
     battery_cost = usage_cost * (power_charge + power_discharge)
     operational_cost = transaction_cost + battery_cost + prod_cost * power_prod
     return operational_cost
 
-def constraint(x, power_needed = None):
+def constraint(x):
+    # constraint : ensure that the import is higher than the export
     power_buy, power_sell, power_charge, power_discharge, power_prod = x
-    if power_needed is None:
-        power_needed = power_buy
-    return power_needed - power_buy + power_sell - power_charge + power_discharge - power_prod
+    return power_buy - power_sell - power_charge + power_discharge + power_prod
 
 def constraint1(x):
+    # constraint : ensure that you can't sell more thant what you produce
     power_buy, power_sell, power_charge, power_discharge, power_prod = x
     return power_prod - power_sell
+
+def constraint2(x):
+    # constraint : ensure that you are either a buyer or a seller
+    power_buy, power_sell, power_charge, power_discharge, power_prod = x
+    valid = -1
+    if power_buy == 0 and power_sell != 0:
+        valid = 1
+    elif power_buy != 0 and power_sell == 0:
+        valid = 1
+    return valid
 
 def worst_case(power_buy=0, power_sell=0, power_charge=0, power_discharge=0, power_produce=0, prices_power=(0,0), main_grid_buy=MAIN_GRID_BUY, main_grid_sell=MAIN_GRID_SELL, time=0):
     """
@@ -139,8 +165,6 @@ def worst_case(power_buy=0, power_sell=0, power_charge=0, power_discharge=0, pow
     :return: an FLOAT price of consumption (can be positive if it costs money or negative if prosumer gains money)
     """
 
-    #if power_sell == 0 and power_produce != 0:
-    #    power_sell = power_produce
     MIN_BUY = power_buy
     MAX_SELL = power_produce
     if power_produce > power_buy:
@@ -154,24 +178,8 @@ def worst_case(power_buy=0, power_sell=0, power_charge=0, power_discharge=0, pow
     bnds = [(MIN_BUY, power_buy*100), (0, MAX_SELL), (0, power_charge), (0, power_discharge), (0, power_produce)]
     con = {'type': 'ineq', 'fun': constraint}
     con1 = {'type': 'ineq', 'fun': constraint1}
-    cons = [con1]
+    con2 = {'type': 'ineq', 'fun': constraint2}
+    cons = [con, con1, con2]
     x0 = [power_buy, 0, power_charge, power_discharge, power_produce]
     mini = minimize(compute_operational_cost, x0, args=(time, prices_power[0], prices_power[1], main_grid_buy, main_grid_sell), bounds = bnds, constraints = cons)
     return mini.fun, mini.x
-
-'''
-# bounds for buy, sell, charge, discharge, produce
-bnds = [(10,20), (0,50), (0,0), (0,0), (0,50)]
-con = {'type': 'ineq', 'fun': constraint}
-con1 = {'type': 'ineq', 'fun': constraint1}
-cons = [con, con1]
-#sol = minimize(objective, x0, method='SLSQP', bounds = bnds, constraints = cons)
-x0 = [0,0,0,0,0]
-for i in range(0,23):
-    print(i)
-    mini = minimize(compute_operational_cost, x0, args=(i,0.2,0.1,MAIN_GRID_BUY,MAIN_GRID_SELL), bounds = bnds, constraints = cons)
-    print(mini.fun)
-    print(mini.x)
-'''
-
-#print(worst_case())
