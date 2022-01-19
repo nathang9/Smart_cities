@@ -7,29 +7,29 @@ import re
 
 
 def pretraitement(title):
-    pv_data_path = os.path.join("data/household_data/", title)
+    pv_data_path = os.path.join("../data/household_data/", title)
     df = pd.read_csv(pv_data_path, index_col=0, parse_dates=True, sep=';')
     df50 = dataframe_pourcent(df, 50)
-    df60 = dataframe_pourcent(df, 60)
-    df70 = dataframe_pourcent(df, 70)
-    df75 = dataframe_pourcent(df, 75)
+    #df60 = dataframe_pourcent(df, 60)
+    #df70 = dataframe_pourcent(df, 70)
+    #df75 = dataframe_pourcent(df, 75)
 
     df50.fillna(0, inplace=True)
-    df60.fillna(0, inplace=True)
-    df70.fillna(0, inplace=True)
-    df75.fillna(0, inplace=True)
+    #df60.fillna(0, inplace=True)
+    #df70.fillna(0, inplace=True)
+    #df75.fillna(0, inplace=True)
 
     df50 = create_df_correct(df50)
-    df60 = create_df_correct(df60)
-    df70 = create_df_correct(df70)
-    df75 = create_df_correct(df75)
+    #df60 = create_df_correct(df60)
+    #df70 = create_df_correct(df70)
+    #df75 = create_df_correct(df75)
 
     tab50 = create_tab(df50)
-    tab60 = create_tab(df60)
-    tab70 = create_tab(df70)
-    tab75 = create_tab(df75)
+    #tab60 = create_tab(df60)
+    #tab70 = create_tab(df70)
+    #tab75 = create_tab(df75)
 
-    return tab50, tab60, tab70, tab75
+    return tab50, tab50, tab50, tab50
 
 
 def dataframe_pourcent(df, prct):
@@ -121,13 +121,13 @@ def create_df_correct(df):
 def regex_valeurs(p, s, c, val, i):
     if re.match(r'[^ \t\n\r\f\v]*pv[^ \t\n\r\f\v]*', i):
         p = p + val
-        print(i, " a de la production")
+        #print(i, " a de la production")
     elif re.match(r'[^ \t\n\r\f\v]*_storage[^ \t\n\r\f\v]*', i) or re.match(r'[^ \t\n\r\f\v]*_ev', i):
         s = s + val
-        print(i, " a du stockage")
+        #print(i, " a du stockage")
     elif not re.match(r'[^ \t\n\r\f\v]*_export[^ \t\n\r\f\v]*', i):
         c = c + val
-        print(i, " a de la consommation")
+        #print(i, " a de la consommation")
     return (p, s, c)
 
 
