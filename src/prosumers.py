@@ -90,7 +90,7 @@ def create(tab):
     prosumers = []
     for i in range(len(tab[0][1])):
         name = "prosumer" + str(i)
-        pro = Prosumer(name)
+        pro = prosumer(name)
         pro.update(tab[0][1][1], tab[0][1][0])
         prosumers.append(pro)
     return prosumers

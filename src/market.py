@@ -127,3 +127,4 @@ class market:
             # Normalement c'est 0 donc ca devrait pas poser de problème
             dictionnaire_gain[id_hors_market] = self.dictionnaire_already_hors_market[id_hors_market]
         return dictionnaire_gain
+
