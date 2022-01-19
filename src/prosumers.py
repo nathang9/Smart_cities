@@ -95,13 +95,21 @@ def update_ALL(tab, iter, prosumers):
     for i in range(len(tab[iter][1])):
         prosumers[i].update(tab[iter][1][i][1], tab[iter][1][i][0])
 
-#################################################################################
+
+##### Computation of the worst price for a prosumers based on exchanges with the main grid #####
+################################################################################################
+# All the prices are the current (2021 / 2022) french prices with EDF
 # main grid price 0,1558 €/kWh # sell for 0,1873 €/kWh
+# Price variation depending of the hour of the day, the day of the week and the season
 # été : [hc, hc, hc, hc, hc, hc, hc, hm, hm, hm, hm, hp, hp, hp, hp, hp, hp, hm, hm, hc, hc, hc, hc, hc]
 # hiver : [hc, hc, hc, hc, hc, hc, hc, hp, hp, hp, hp, hm, hm, hm, hm, hm, hm, hp, hp, hc, hc, hc, hc, hc]
 # week-end : [hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc, hc]
+# hc : heure creuse ; hm : heure moyenne ; hp : heure pleine
+# coefficients are chosen arbitrarily
 hc, hm, hp = 0.5 * 0.1558, 0.75 * 0.1558, 1.25 * 0.1558
+# summer prices are chosen for this simulation
 MAIN_GRID = [hc, hc, hc, hc, hc, hc, hc, hm, hm, hm, hm, hp, hp, hp, hp, hp, hp, hm, hm, hc, hc, hc, hc, hc]
+# Coefficients for buying prices and selling prices are chosen arbitrarily : 1.1 for buying and 0.9 for selling
 MAIN_GRID_SELL = [element * 0.9 for element in MAIN_GRID]
 MAIN_GRID_BUY = [element * 1.1 for element in MAIN_GRID]
 
@@ -162,7 +170,7 @@ def worst_case(power_buy=0, power_sell=0, power_charge=0, power_discharge=0, pow
     :param main_grid_buy: price of buying energy to the main grid
     :param main_grid_sell: price of selling energy to the main grid
     :param float time: time of the transaction
-    :return: an FLOAT price of consumption (can be positive if it costs money or negative if prosumer gains money)
+    :return: The price of consumption (can be positive if it costs money or negative if prosumer gains money)
     """
 
     MIN_BUY = power_buy
@@ -176,10 +184,13 @@ def worst_case(power_buy=0, power_sell=0, power_charge=0, power_discharge=0, pow
 
     # bounds for buy, sell, charge, discharge, produce
     bnds = [(MIN_BUY, power_buy*100), (0, MAX_SELL), (0, power_charge), (0, power_discharge), (0, power_produce)]
+    # constraints for the minimization
     con = {'type': 'ineq', 'fun': constraint}
     con1 = {'type': 'ineq', 'fun': constraint1}
     con2 = {'type': 'ineq', 'fun': constraint2}
     cons = [con, con1, con2]
+    # initial values
     x0 = [power_buy, 0, power_charge, power_discharge, power_produce]
+    # minimization under constraints
     mini = minimize(compute_operational_cost, x0, args=(time, prices_power[0], prices_power[1], main_grid_buy, main_grid_sell), bounds = bnds, constraints = cons)
     return mini.fun, mini.x
