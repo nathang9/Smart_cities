@@ -1,39 +1,32 @@
+import pandas as pd
+
 from pretraitement import *
-from visualisation import *
-import tkinter as tk
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from prosumers import *
 
-tab50,tab60,tab70,tab75 = pretraitement("household_data_60min_singleindex.csv");
-print(tab50)
+tab50,tab60,tab70,tab75 = pretraitement("Copie.csv");
+# print(tab50)
+# print(tab50[0][1][0][1])
 
+#print(len(tab50))
+#print((len(tab50[0])))
+#print((len(tab50[0][0])))
+#print((len(tab50[0][0][0])))
+#print((len(tab50[0][0][0][0])))
 
-#Partie GUI
-root = tk.Tk()
+#df = pd.read_csv("../data/household_data/75pourcent.csv")
+#tab50 = create_tab(df)
 
-figure1 = plt.Figure(figsize=(6, 5), dpi=100)
-ax1 = figure1.add_subplot(111)
-bar1 = FigureCanvasTkAgg(figure1, root)
-bar1.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH)
-df1 = df1[['Country', 'GDP_Per_Capita']].groupby('Country').sum()
-df1.plot(kind='bar', legend=True, ax=ax1)
-ax1.set_title('Country Vs. GDP Per Capita')
-
-figure2 = plt.Figure(figsize=(5, 4), dpi=100)
-ax2 = figure2.add_subplot(111)
-line2 = FigureCanvasTkAgg(figure2, root)
-line2.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH)
-df2 = df2[['Year', 'Unemployment_Rate']].groupby('Year').sum()
-df2.plot(kind='line', legend=True, ax=ax2, color='r', marker='o', fontsize=10)
-ax2.set_title('Year Vs. Unemployment Rate')
-
-figure3 = plt.Figure(figsize=(5, 4), dpi=100)
-ax3 = figure3.add_subplot(111)
-ax3.scatter(df3['Interest_Rate'], df3['Stock_Index_Price'], color='g')
-scatter3 = FigureCanvasTkAgg(figure3, root)
-scatter3.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH)
-ax3.legend(['Stock_Index_Price'])
-ax3.set_xlabel('Interest Rate')
-ax3.set_title('Interest Rate Vs. Stock Index Price')
-
-root.mainloop()
+tab = []
+time = []
+for i in range(len(tab50)):
+    time = []
+    print(i)
+    for j in range(len(tab50[i][1])):
+        cons = tab50[i][1][j][1]
+        prod = tab50[i][1][j][0]
+        w = worst_case(power_buy=cons, power_produce=prod, prices_power=(0.1, 0.1), time=tab50[i][0])
+        time.append(w)
+        print(w)
+    tab.append(time)
+print("----------------------------------------------------------------")
+print(tab)
