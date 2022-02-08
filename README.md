@@ -2,7 +2,8 @@
 # Smart_cities
 
 ## Contexte
-
+Ce projet prend place alors qu'actuellement le marché de l'électricité en France est entièrement centralisé. Effectivement, que l'on vende ou que l'on achète, on doit passer par EDF. Nous avons vu dans un article qu'il existe la possibilité de passer à un marché pair à pair afin de permettre à tous les consommateurs de gagner de l'argent sur leurs échanges.
+En effet, le prix de vente étant inférieur au prix d'achat pour la main grid, un marché de pair à pair permet de trouver un compromis direct entre l'acheteur et le vendeur plus avantageux aux deux. Le but de ce projet est donc de vérifier la validité de cette théorie en modélisant un cas pratique d'application.
 
 
 ## Organisation du projet
