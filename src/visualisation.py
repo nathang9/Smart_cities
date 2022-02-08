@@ -55,13 +55,38 @@ def mean_min_max(tabs_gain):
     handles = [pmin, pmax, pmoy]
     return handles
 
-
-def cons_prod_one (tab, resi):
+# Récupération de la production et la consommation heure par heure d'une résidence 'resi' en particulier
+def cons_prod_one(tab, resi):
     cons = []
     prod = []
     hours = []
-    for i in range (0, len(tab)):
+    for i in range(0, len(tab)):
         prod.append(tab[i][1][resi][0])
         cons.append(tab[i][1][resi][1])
-        hours.append(tab[i][0])
+        hours.append(str(i))
     return hours, prod, cons
+
+# Courbe de consommation et production de chaque résident au cours du temps
+# doub=[c,p] permet de préciser ce qu'on veut voir:
+# [1,1]=consommation et production
+# [1,0]=seulement la consommation
+# [0,1]=seulement la production
+def plot_prod_cons(tab, doub):
+    [c,p] = doub
+    if c != 0 or p != 0:
+        fig, axs = plt.subplots(2, 4)
+        for i in range(0, 4):
+            hours, prod, cons = cons_prod_one(tab, i * 2)
+            hours1, prod1, cons1 = cons_prod_one(tab, i * 2 + 1)
+            if p==1 :
+                axs[0, i].plot(hours, prod, 'r')
+                axs[1, i].plot(hours1, prod1, 'r')
+            if c==1 :
+                axs[0, i].plot(hours, cons, 'b')
+                axs[1, i].plot(hours1, cons1, 'b')
+
+            axs[0, i].set_title('Résidence n° ' + str(i * 2 + 1))
+            axs[1, i].set_title('Résidence n° ' + str(i * 2 + 2))
+        plt.show()
+    else:
+        print("Rien n'est demandé.")

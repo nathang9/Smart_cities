@@ -5,36 +5,26 @@ import os
 import datetime
 import re
 
-def pretraitement( title):
-    PV_data_path = os.path.join("data/household_data/", title)
-    df = pd.read_csv(PV_data_path, index_col=0, parse_dates=True, sep=';')
 
-def pretraitement(title):
+## Réalise l'entièreté du prétraitement nécessaire des données:
+# on choisit le fichier et le pourcentage de valeurs nulles accepté par ligne
+# on reçoit un tableau de la production et de la consommation en électricité des résidences heure par heure
+def pretraitement(title, prct):
     pv_data_path = os.path.join("../data/household_data/", title)
     df = pd.read_csv(pv_data_path, index_col=0, parse_dates=True, sep=';')
-    df50 = dataframe_pourcent(df, 50)
-    #df60 = dataframe_pourcent(df, 60)
-    #df70 = dataframe_pourcent(df, 70)
-    #df75 = dataframe_pourcent(df, 75)
+    df = dataframe_pourcent(df, prct)
 
-    df50.fillna(0, inplace=True)
-    #df60.fillna(0, inplace=True)
-    #df70.fillna(0, inplace=True)
-    #df75.fillna(0, inplace=True)
+    df.fillna(0, inplace=True)
 
-    df50 = create_df_correct(df50)
-    #df60 = create_df_correct(df60)
-    #df70 = create_df_correct(df70)
-    #df75 = create_df_correct(df75)
+    df = create_df_correct(df)
 
-    tab50 = create_tab(df50)
-    #tab60 = create_tab(df60)
-    #tab70 = create_tab(df70)
-    #tab75 = create_tab(df75)
+    tab = create_tab(df)
 
-    return tab50 #, tab50, tab50, tab50
+    return tab
 
 
+## On fournit un dataframe (df) et un pourcentage de valeurs nulles accepté par ligne (prct)
+# on reçoit un dataframe avec uniquement les lignes correspondant au pourcentage de valeurs nulles demandé (ou moins)
 def dataframe_pourcent(df, prct):
     new_df = df.copy()
     for i in df.index:
@@ -48,6 +38,8 @@ def dataframe_pourcent(df, prct):
     return new_df
 
 
+## On fournit un dataframe (df) contenant un certain nombre d'informations
+# on reçoit un dataframe ne contenant que les informations qui nous intéresse (production et consommation par résidence heure par heure)
 def create_df_correct(df):
     j = 0
     [d, h] = [0, 0]
@@ -161,30 +153,33 @@ def create_df_correct(df):
     return new_df
 
 
+## On reçoit les valeurs de consommation, production et stockage en fonction d'une comparaison regex
 def regex_valeurs(p, s, c, val, i):
     if re.match(r'[^ \t\n\r\f\v]*pv[^ \t\n\r\f\v]*', i):
         p = p + val
-        #print(i, " a de la production")
+        # print(i, " a de la production")
     elif re.match(r'[^ \t\n\r\f\v]*_storage[^ \t\n\r\f\v]*', i) or re.match(r'[^ \t\n\r\f\v]*_ev', i):
         s = s + val
-        #print(i, " a du stockage")
+        # print(i, " a du stockage")
     elif not re.match(r'[^ \t\n\r\f\v]*_export[^ \t\n\r\f\v]*', i):
         c = c + val
-        #print(i, " a de la consommation")
+        # print(i, " a de la consommation")
     return (p, s, c)
 
 
+## On fournit un dataframe de données qui nous intéresse
+# on reçoit un tableau des valeurs de production et consommation des résidences heure par heure
 def create_tab(df):
     tab = []
-    for i in range (0, df.shape[0]):
-        tab_hour = [ [df['prod_r1'][i], df['conso_r1'][i]],
-                     [df['prod_r2'][i], df['conso_r2'][i]],
-                     [df['prod_r3'][i], df['conso_r3'][i]],
-                     [df['prod_r4'][i], df['conso_r4'][i]],
-                     [df['prod_r5'][i], df['conso_r5'][i]],
-                     [df['prod_r6'][i], df['conso_r6'][i]],
-                     [df['prod_i1'][i], df['conso_i1'][i]],
-                     [df['prod_i2'][i], df['conso_i2'][i]]]
+    for i in range(0, df.shape[0]):
+        tab_hour = [[df['prod_r1'][i], df['conso_r1'][i]],
+                    [df['prod_r2'][i], df['conso_r2'][i]],
+                    [df['prod_r3'][i], df['conso_r3'][i]],
+                    [df['prod_r4'][i], df['conso_r4'][i]],
+                    [df['prod_r5'][i], df['conso_r5'][i]],
+                    [df['prod_r6'][i], df['conso_r6'][i]],
+                    [df['prod_i1'][i], df['conso_i1'][i]],
+                    [df['prod_i2'][i], df['conso_i2'][i]]]
         ligne = [df['hour'][i], tab_hour]
         tab.append(ligne)
     return tab
