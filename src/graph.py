@@ -27,6 +27,11 @@ MAIN_GRID_BUY = [element * 1.1 for element in MAIN_GRID]
 
 
 def plot_worst_case_ALL(tab):
+    """both the cost for a given prosumer with and without market exchanges
+
+    Plot the cost for all the prosumers without market
+    :param tab: table provided by pretraitement.py
+    """
     temp = []
     graph = [[] for i in range(len(tab[0][1]))]
     time = []
@@ -51,10 +56,16 @@ def plot_worst_case_ALL(tab):
         plt.gcf().autofmt_xdate()
         myFmt = mdates.DateFormatter('%H:%M')
         plt.gca().xaxis.set_major_formatter(myFmt)
-    plt.show()
+    #plt.show()
 
 
 def plot_worst_case(tab, prosumer_rank):
+    """
+    Plot the cost without market for one prosumer
+
+    :param tab: table provided by pretraitement.py
+    :param prosumer_rank: number of the prosumer
+    """
     graph = []
     time = []
     day = 1
@@ -75,10 +86,16 @@ def plot_worst_case(tab, prosumer_rank):
     plt.gcf().autofmt_xdate()
     myFmt = mdates.DateFormatter('%H:%M')
     plt.gca().xaxis.set_major_formatter(myFmt)
-    plt.show()
+    #plt.show()
 
 
 def plot_market_VS_worst(tab, prosumer_rank):
+    """
+    Plot both the cost for a given prosumer with and without market exchanges
+
+    :param tab: table provided by pretraitement.py
+    :param prosumer_rank: number of the prosumer
+    """
     graph = []
     market_graph = []
     time = []
@@ -97,16 +114,16 @@ def plot_market_VS_worst(tab, prosumer_rank):
         marche = market(liste_participants, 0.9, MAIN_GRID_BUY[tab[i][0]], MAIN_GRID_SELL[tab[i][0]])
         marche.resolve()
         dict_rep = marche.getDictionnaireGain()
-        if liste_participants[prosumer_rank].isProducer:
-            prix = liste_participants[prosumer_rank].balance * MAIN_GRID_SELL[tab[i][0]] - dict_rep[name]
+        if liste_participants[prosumer_rank].balance > 0:
+            prix = - liste_participants[prosumer_rank].balance * MAIN_GRID_SELL[tab[i][0]] - dict_rep[name]
         else:
-            prix = liste_participants[prosumer_rank].balance * MAIN_GRID_BUY[tab[i][0]] + dict_rep[name]
+            prix = - liste_participants[prosumer_rank].balance * MAIN_GRID_BUY[tab[i][0]] - dict_rep[name]
         market_graph.append(prix)
         update_ALL(tab, i, liste_participants)
 
         cons = tab[i][1][prosumer_rank][1]
         prod = tab[i][1][prosumer_rank][0]
-        w, _ = worst_case(power_buy=cons, power_produce=prod, prices_power=(0.2, 0.2), time=tab[i][0])
+        w, _ = worst_case(power_buy=cons, power_produce=prod, prices_power=(0.0, 0.0), time=tab[i][0])
         graph.append(w)
         print(w)
 
@@ -118,10 +135,17 @@ def plot_market_VS_worst(tab, prosumer_rank):
     plt.gcf().autofmt_xdate()
     myFmt = mdates.DateFormatter('%H:%M')
     plt.gca().xaxis.set_major_formatter(myFmt)
-    plt.show()
+    #plt.show()
 
 # Récupération de la production et la consommation heure par heure d'une résidence 'resi' en particulier
 def cons_prod_one(tab, resi):
+    """
+    Gather the production and the consumption for a household
+
+    :param tab: table provided by pretraitement.py
+    :param resi: household number
+    :return: hours, production, consumption
+    """
     cons = []
     prod = []
     hours = []
@@ -138,6 +162,13 @@ def cons_prod_one(tab, resi):
 # [1,0]=seulement la consommation
 # [0,1]=seulement la production
 def plot_prod_cons(tab, doub):
+    """
+    Plot the consumption and/or the production of all prosumers
+
+    :param tab: table provided by pretraitement.py
+    :param doub: array for plotting consumption and/or production [1 if plot consumption else 0, 1 if plot production else 0]
+    """
+    plt.figure()
     [c, p] = doub
     if c != 0 or p != 0:
         fig, axs = plt.subplots(2, 4)
@@ -153,12 +184,19 @@ def plot_prod_cons(tab, doub):
 
             axs[0, i].set_title('Résidence n° ' + str(i * 2 + 1))
             axs[1, i].set_title('Résidence n° ' + str(i * 2 + 2))
-        plt.show()
+        #plt.show()
     else:
         print("Rien n'est demandé.")
 
 
-def plot_prosumer_gain_delta(prosumer_name):
+def plot_prosumer_gain_delta(prosumer_rank):
+    """
+    Plot the variation of gain with respect to the delta parameter
+
+    :param prosumer_rank:
+    """
+    plt.figure()
+    prosumer_name = "prosumer" + str(prosumer_rank)
     tab50 = pretraitement("Copie.csv", 50)
     liste_teta = []
     liste_gain = []
@@ -177,4 +215,4 @@ def plot_prosumer_gain_delta(prosumer_name):
         liste_gain.append(dict_rep[prosumer_name])
 
     plt.plot(liste_teta, liste_gain)
-    plt.show()
+    #plt.show()
