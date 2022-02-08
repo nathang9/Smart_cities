@@ -55,7 +55,7 @@ def mean_min_max(tabs_gain):
     handles = [pmin, pmax, pmoy]
     return handles
 
-
+# Récupération de la production et la consommation heure par heure d'une résidence 'resi' en particulier
 def cons_prod_one(tab, resi):
     cons = []
     prod = []
@@ -66,7 +66,11 @@ def cons_prod_one(tab, resi):
         hours.append(str(i))
     return hours, prod, cons
 
-
+# Courbe de consommation et production de chaque résident au cours du temps
+# doub=[c,p] permet de préciser ce qu'on veut voir:
+# [1,1]=consommation et production
+# [1,0]=seulement la consommation
+# [0,1]=seulement la production
 def plot_prod_cons(tab, doub):
     [c,p] = doub
     if c != 0 or p != 0:
