@@ -4,7 +4,7 @@ import datetime
 
 from prosumers import *
 from market import *
-
+from visualisation import *
 
 
 def plot_prosumers(tab):
@@ -32,4 +32,18 @@ def plot_prosumers(tab):
         plt.gcf().autofmt_xdate()
         myFmt = mdates.DateFormatter('%H:%M')
         plt.gca().xaxis.set_major_formatter(myFmt)
+    plt.show()
+
+
+def plot_prod_cons(tab):
+    fig, axs = plt.subplots(2, 4)
+    for i in range(0, 4):
+        hours, prod, cons = cons_prod_one(tab, i * 2);
+        hours1, prod1, cons1 = cons_prod_one(tab, i * 2 + 1)
+        axs[0, i].plot(hours, prod, 'r')
+        axs[0, i].plot(hours, cons, 'b')
+        axs[0, i].set_title('Résidence n° ' + str(i * 2))
+        axs[1, i].plot(hours1, prod1, 'r')
+        axs[1, i].plot(hours1, cons1, 'b')
+        axs[1, i].set_title('Résidence n° ' + str(i * 2 + 1))
     plt.show()
