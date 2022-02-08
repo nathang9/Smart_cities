@@ -25,6 +25,7 @@ MAIN_GRID = [hc, hc, hc, hc, hc, hc, hc, hm, hm, hm, hm, hp, hp, hp, hp, hp, hp,
 MAIN_GRID_SELL = [element * 0.9 for element in MAIN_GRID]
 MAIN_GRID_BUY = [element * 1.1 for element in MAIN_GRID]
 
+
 def plot_worst_case_ALL(tab):
     temp = []
     graph = [[] for i in range(len(tab[0][1]))]
@@ -52,6 +53,7 @@ def plot_worst_case_ALL(tab):
         plt.gca().xaxis.set_major_formatter(myFmt)
     plt.show()
 
+
 def plot_worst_case(tab, prosumer_rank):
     graph = []
     time = []
@@ -75,8 +77,8 @@ def plot_worst_case(tab, prosumer_rank):
     plt.gca().xaxis.set_major_formatter(myFmt)
     plt.show()
 
-def plot_market_VS_worst(tab, prosumer_rank):
 
+def plot_market_VS_worst(tab, prosumer_rank):
     graph = []
     market_graph = []
     time = []
@@ -100,7 +102,7 @@ def plot_market_VS_worst(tab, prosumer_rank):
         else:
             prix = liste_participants[prosumer_rank].balance * MAIN_GRID_BUY[tab[i][0]] + dict_rep[name]
         market_graph.append(prix)
-        update_ALL(tab,i, liste_participants)
+        update_ALL(tab, i, liste_participants)
 
         cons = tab[i][1][prosumer_rank][1]
         prod = tab[i][1][prosumer_rank][0]
@@ -118,18 +120,38 @@ def plot_market_VS_worst(tab, prosumer_rank):
     plt.gca().xaxis.set_major_formatter(myFmt)
     plt.show()
 
-def plot_prod_cons(tab):
-    fig, axs = plt.subplots(2, 4)
-    for i in range(0, 4):
-        hours, prod, cons = cons_prod_one(tab, i * 2);
-        hours1, prod1, cons1 = cons_prod_one(tab, i * 2 + 1)
-        axs[0, i].plot(hours, prod, 'r')
-        axs[0, i].plot(hours, cons, 'b')
-        axs[0, i].set_title('Résidence n° ' + str(i * 2))
-        axs[1, i].plot(hours1, prod1, 'r')
-        axs[1, i].plot(hours1, cons1, 'b')
-        axs[1, i].set_title('Résidence n° ' + str(i * 2 + 1))
-    plt.show()
+
+def cons_prod_one(tab, resi):
+    cons = []
+    prod = []
+    hours = []
+    for i in range(0, len(tab)):
+        prod.append(tab[i][1][resi][0])
+        cons.append(tab[i][1][resi][1])
+        hours.append(str(i))
+    return hours, prod, cons
+
+
+def plot_prod_cons(tab, doub):
+    [c, p] = doub
+    if c != 0 or p != 0:
+        fig, axs = plt.subplots(2, 4)
+        for i in range(0, 4):
+            hours, prod, cons = cons_prod_one(tab, i * 2)
+            hours1, prod1, cons1 = cons_prod_one(tab, i * 2 + 1)
+            if p == 1:
+                axs[0, i].plot(hours, prod, 'r')
+                axs[1, i].plot(hours1, prod1, 'r')
+            if c == 1:
+                axs[0, i].plot(hours, cons, 'b')
+                axs[1, i].plot(hours1, cons1, 'b')
+
+            axs[0, i].set_title('Résidence n° ' + str(i * 2 + 1))
+            axs[1, i].set_title('Résidence n° ' + str(i * 2 + 2))
+        plt.show()
+    else:
+        print("Rien n'est demandé.")
+
 
 def plot_prosumer_gain_delta(prosumer_name):
     tab50 = pretraitement("Copie.csv", 50)
@@ -137,7 +159,8 @@ def plot_prosumer_gain_delta(prosumer_name):
     liste_gain = []
     nb_valeur_teta = 100
     for teta in range(nb_valeur_teta):
-        print('Creation de la liste des participants -------------------------------------------------------------------------------')
+        print(
+            'Creation de la liste des participants -------------------------------------------------------------------------------')
         liste_participants = create(tab50)
         teta = teta / nb_valeur_teta
         print('Création du marché')
