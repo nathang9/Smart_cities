@@ -1,10 +1,13 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from src.graph import plot_prosumer_gain_delta
 from src.pretraitement import *
 from src.prosumers import *
 from src.market import *
 
-tab50,tab60,tab70,tab75 = pretraitement("Copie.csv")
+tab50 = pretraitement("Copie.csv")
+print(tab50)
 liste_teta = []
 liste_gain = []
 nb_valeur_teta = 1000
@@ -22,6 +25,7 @@ for teta in range(nb_valeur_teta):
     liste_teta.append(teta)
     liste_gain.append(dict_rep['prosumer1'])
 
-plt.plot(liste_teta, liste_gain)
-plt.show()
-
+#plt.plot(liste_teta, liste_gain)
+#plt.show()
+print('here------------------------------------------------------------------------------------')
+plot_prosumer_gain_delta('prosumer1')

@@ -120,7 +120,7 @@ class market:
 
         # On commence par les acheteurs
         for id_acheteur in self.dictionnaire_proportion_acheteurs:
-            dictionnaire_gain[id_acheteur] = self.dictionnaire_proportion_acheteurs[id_acheteur]/total_besoin * total_achete * (-1)
+            dictionnaire_gain[id_acheteur] = self.dictionnaire_proportion_acheteurs[id_acheteur]/total_besoin * total_achete
         for id_vendeur in self.dictionnaire_proportion_vendeurs:
             dictionnaire_gain[id_vendeur] = self.dictionnaire_proportion_vendeurs[id_vendeur]/total_surplus * total_vendu
         for id_hors_market in self.dictionnaire_already_hors_market:
