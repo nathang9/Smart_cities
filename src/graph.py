@@ -96,10 +96,10 @@ def plot_market_VS_worst(tab, prosumer_rank):
         marche.resolve()
         dict_rep = marche.getDictionnaireGain()
         if liste_participants[prosumer_rank].isProducer:
-            prix = liste_participants[prosumer_rank].balance * MAIN_GRID_SELL[tab[i][0]]
+            prix = liste_participants[prosumer_rank].balance * MAIN_GRID_SELL[tab[i][0]] - dict_rep[name]
         else:
-            prix = liste_participants[prosumer_rank].balance * MAIN_GRID_BUY[tab[i][0]]
-        market_graph.append(prix - dict_rep[name])
+            prix = liste_participants[prosumer_rank].balance * MAIN_GRID_BUY[tab[i][0]] + dict_rep[name]
+        market_graph.append(prix)
         update_ALL(tab,i, liste_participants)
 
         cons = tab[i][1][prosumer_rank][1]
@@ -132,7 +132,7 @@ def plot_prod_cons(tab):
     plt.show()
 
 def plot_prosumer_gain_delta(prosumer_name):
-    tab50 = pretraitement("Copie.csv")
+    tab50 = pretraitement("Copie.csv", 50)
     liste_teta = []
     liste_gain = []
     nb_valeur_teta = 100
