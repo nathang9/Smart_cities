@@ -32,12 +32,12 @@ class market:
         for vendeur in vendeurs:
             for acheteur in acheteurs:
                 # Transaction entre le vendeur et l'acheteur
-                besoin_acheteur = acheteur.balance
+                besoin_acheteur = acheteur.balance *(-1)
                 surplus_vendeur = vendeur.balance
                 if besoin_acheteur < surplus_vendeur:
                     # L'acheteur achète tout ce qu'il veut
                     prix_acheteur = self.main_grid_price['buyer'] - (self.main_grid_price['buyer']-self.main_grid_price['seller']) * (1-self.delta_vendeur)
-                    transaction_amount = besoin_acheteur * prix_acheteur *(-1)
+                    transaction_amount = besoin_acheteur * prix_acheteur
                     transaction = {'seller': vendeur.id, 'buyer':acheteur.id, 'amount':transaction_amount }
                     self.dictionnaire_vente[str(id_transaction)] = transaction
                     id_transaction += 1
@@ -47,9 +47,9 @@ class market:
                     acheteurs.remove(acheteur)
                     hors_marche.append(acheteur)
                     # Les signes des besoins sont opposés
-                    vendeur.balance = surplus_vendeur + besoin_acheteur
+                    vendeur.balance = surplus_vendeur - besoin_acheteur
 
-                if besoin_acheteur >= surplus_vendeur:
+                if besoin_acheteur >= surplus_vendeur and surplus_vendeur >0 :
                     # Le vendeur vends tout son stock
                     prix_acheteur = self.main_grid_price['buyer'] - (self.main_grid_price['buyer']-self.main_grid_price['seller']) * (1-self.delta_vendeur)
                     transaction_amount = surplus_vendeur * prix_acheteur
@@ -61,7 +61,7 @@ class market:
                     vendeurs.remove(vendeur)
                     hors_marche.append(vendeur)
                     # Les signes des besoins sont opposés
-                    acheteur.balance = besoin_acheteur + surplus_vendeur
+                    acheteur.balance = -besoin_acheteur + surplus_vendeur
 
                     if besoin_acheteur == surplus_vendeur:
                         # On traite le cas d'égalité :
