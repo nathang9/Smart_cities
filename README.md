@@ -1,2 +1,0 @@
-# Smart_cities
-
