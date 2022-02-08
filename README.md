@@ -37,3 +37,13 @@ Les courbes renvoyées sont alors:
 - La comparaison de coût entre la situation testée et la situation témoin pour la prosumer 7.
 - L'impact du delta sur les gains du prosumer 5 dans la situation testée. 
 - L'impact du delta sur les gains du prosumer 7 dans la situation testée.
+
+
+## Limites
+
+La simplicité du modèle: on considère le delta comme prédeterminé, car sa détermination prendrait énormément de temps, mais celle-ci permettrait également une meilleure modélisation des négociations.
+
+On ne prend pas en compte la gestion des batteries et la rétention d'électricité, partant du principe que personne ne fait des réserves.
+
+De plus, les prix de la production d'électricité n'est pas rentable en France aujourd'hui.
+
