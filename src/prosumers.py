@@ -1,7 +1,34 @@
 from scipy.optimize import minimize
 import numpy as np
 
-class Prosumer:
+# main grid price
+MAIN_GRID = [1,1,1,1]
+MAIN_GRID_SELL = MAIN_GRID
+MAIN_GRID_BUY = MAIN_GRID
+
+def compute_operational_cost(x,  time,usage_cost,prod_cost):
+    """
+    compute the operational cost for a single prosumers
+
+    :param x: variable that contains the detail of power variation [power_buy, power_sell, power_charge, power_discharge, power_prod]
+    :param int time: time of the transaction
+    :param float usage_cost: cost for using the battery
+    :param float prod_cost: cost for producing energy by the prosumers
+    :return: operational cost
+    """
+
+    power_buy, power_sell, power_charge, power_discharge, power_prod = x
+
+    transaction_cost = MAIN_GRID_BUY[time] * power_buy - MAIN_GRID_SELL[time] * power_sell
+    battery_cost = usage_cost * (power_charge + power_discharge)
+    operational_cost = transaction_cost + battery_cost + prod_cost * power_prod
+    return operational_cost
+
+def constraint(x, power_needed = 100):
+    power_buy, power_sell, power_charge, power_discharge, power_prod = x
+    return power_needed - power_buy + power_sell - power_charge + power_discharge - power_prod
+
+class prosumer:
 
     def __init__(self, id=None):
         """
@@ -57,9 +84,9 @@ class Prosumer:
         """
         if self.isProducer:
             ratio = self.balance / total_production
-            delta_prod = min(ratio + 0.5, 1) / (param+1)
+            delta_prod = min(ratio + 0.5, 1) / param
         elif self.isConsumer:
-            ratio = -self.balance / total_consumption
+            ratio = self.balance / total_consumption
             delta_prod = 1 - min(max(ratio - 0.5, 0) * param, 1)
         print("ratio", ratio)
         self.delta = int(delta_prod*10)/10
@@ -77,7 +104,7 @@ def create(tab):
     prosumers = []
     for i in range(len(tab[0][1])):
         name = "prosumer" + str(i)
-        pro = Prosumer(name)
+        pro = prosumer(name)
         pro.update(tab[0][1][i][1], tab[0][1][i][0])
         prosumers.append(pro)
     return prosumers
@@ -194,3 +221,21 @@ def worst_case(power_buy=0, power_sell=0, power_charge=0, power_discharge=0, pow
     # minimization under constraints
     mini = minimize(compute_operational_cost, x0, args=(time, prices_power[0], prices_power[1], main_grid_buy, main_grid_sell), bounds = bnds, constraints = cons)
     return mini.fun, mini.x
+
+'''
+# bounds for buy, sell, charge, discharge, produce
+bnds = [(10,20), (0,50), (0,0), (0,0), (0,50)]
+con = {'type': 'ineq', 'fun': constraint}
+con1 = {'type': 'ineq', 'fun': constraint1}
+cons = [con, con1]
+#sol = minimize(objective, x0, method='SLSQP', bounds = bnds, constraints = cons)
+x0 = [0,0,0,0,0]
+for i in range(0,23):
+    print(i)
+    mini = minimize(compute_operational_cost, x0, args=(i,0.2,0.1,MAIN_GRID_BUY,MAIN_GRID_SELL), bounds = bnds, constraints = cons)
+    print(mini.fun)
+    print(mini.x)
+'''
+
+#print(worst_case())
+

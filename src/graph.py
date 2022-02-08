@@ -2,9 +2,13 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import datetime
 
-from prosumers import *
-from market import *
-from visualisation import *
+from src.prosumers import *
+from src.market import *
+from src.visualisation import *
+
+from src.market import market
+from src.pretraitement import pretraitement
+from src.prosumers import create
 
 
 def plot_prosumers(tab):
@@ -46,4 +50,24 @@ def plot_prod_cons(tab):
         axs[1, i].plot(hours1, prod1, 'r')
         axs[1, i].plot(hours1, cons1, 'b')
         axs[1, i].set_title('Résidence n° ' + str(i * 2 + 1))
+    plt.show()
+
+def plot_prosumer_gain_delta(prosumer_name):
+    tab50 = pretraitement("Copie.csv")
+    liste_teta = []
+    liste_gain = []
+    nb_valeur_teta = 100
+    for teta in range(nb_valeur_teta):
+        print('Creation de la liste des participants -------------------------------------------------------------------------------')
+        liste_participants = create(tab50)
+        teta = teta / nb_valeur_teta
+        print('Création du marché')
+        marche = market(liste_participants, teta, 0.1558 * (2 - teta) * 0.75, 0.1558 * teta * 0.75)
+        marche.resolve()
+        print('marché résolu')
+        dict_rep = marche.getDictionnaireGain()
+        liste_teta.append(teta)
+        liste_gain.append(dict_rep[prosumer_name])
+
+    plt.plot(liste_teta, liste_gain)
     plt.show()
