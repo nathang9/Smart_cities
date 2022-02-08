@@ -1,3 +1,4 @@
+
 # Smart_cities
 
 ## Contexte
@@ -20,4 +21,5 @@ On trouve aussi plusieurs fichiers de test, qui ont été utilisés pour vérifi
 On y trouve plusieurs ensembles de données qui ont été utilisées au cours du projet, notamment pour tester le prétraitement et son bon fonctionnement.  Copie.csv et household_data_60min_singleindex.csv sont ceux que l'on utilise pour les tests de situations.
 
 ## Données à manipuler
+
 
