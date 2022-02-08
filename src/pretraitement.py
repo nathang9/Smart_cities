@@ -32,7 +32,7 @@ def pretraitement(title):
     #tab70 = create_tab(df70)
     #tab75 = create_tab(df75)
 
-    return tab50, tab50, tab50, tab50
+    return tab50 #, tab50, tab50, tab50
 
 
 def dataframe_pourcent(df, prct):

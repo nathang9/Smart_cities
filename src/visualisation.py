@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import matplotlib as matplotlib
 import tkinter as tk
 
+# Visus nécessaires: courbe de gain par personne, courbe de participation d'heure en heure, les gains avec moyenne/max/min
+# Conso et prod d'heure en heure pour chaque prosumer
+
 def visualisation_generale():
     matplotlib.use('TkAgg')
     h = courbe_prix(0.1)
@@ -52,4 +55,13 @@ def mean_min_max(tabs_gain):
     handles = [pmin, pmax, pmoy]
     return handles
 
-visualisation_generale()
+
+def cons_prod_one (tab, resi):
+    cons = []
+    prod = []
+    hours = []
+    for i in range (0, len(tab)):
+        prod.append(tab[i][1][resi][0])
+        cons.append(tab[i][1][resi][1])
+        hours.append(tab[i][0])
+    return hours, prod, cons
