@@ -34,7 +34,10 @@ tab50,tab60,tab70,tab75 = pretraitement("Copie.csv");
 print('Creation de la liste des participants -------------------------------------------------------------------------------')
 liste_participants = create(tab50)
 print('Création du marché')
-marche = market(liste_participants,0.9,330,200)
+marche = market(liste_participants,0.9,0.1558*1.1*0.75,0.1558*0.9*0.75)
 marche.resolve()
 print('marché résolu')
 dict_rep = marche.getDictionnaireGain()
+
+for personne in dict_rep:
+    print('Personne : ' + personne + ' , gain : ' + str(dict_rep[personne])+ '\n')
