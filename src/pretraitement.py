@@ -6,30 +6,18 @@ import datetime
 import re
 
 
-def pretraitement(title):
+def pretraitement(title, prct):
     pv_data_path = os.path.join("../data/household_data/", title)
     df = pd.read_csv(pv_data_path, index_col=0, parse_dates=True, sep=';')
-    df50 = dataframe_pourcent(df, 50)
-    #df60 = dataframe_pourcent(df, 60)
-    #df70 = dataframe_pourcent(df, 70)
-    #df75 = dataframe_pourcent(df, 75)
+    df = dataframe_pourcent(df, prct)
 
-    df50.fillna(0, inplace=True)
-    #df60.fillna(0, inplace=True)
-    #df70.fillna(0, inplace=True)
-    #df75.fillna(0, inplace=True)
+    df.fillna(0, inplace=True)
 
-    df50 = create_df_correct(df50)
-    #df60 = create_df_correct(df60)
-    #df70 = create_df_correct(df70)
-    #df75 = create_df_correct(df75)
+    df = create_df_correct(df)
 
-    tab50 = create_tab(df50)
-    #tab60 = create_tab(df60)
-    #tab70 = create_tab(df70)
-    #tab75 = create_tab(df75)
+    tab = create_tab(df)
 
-    return tab50 #, tab50, tab50, tab50
+    return tab
 
 
 def dataframe_pourcent(df, prct):
